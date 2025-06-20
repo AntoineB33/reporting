@@ -8,10 +8,4 @@ initialisation :
 installer les librairies :
 python -m pip install -r requirements.txt
 
-remplire le tag_order dans main.py pour obtenir les ratios dans l'ordre voulu:
-
-
-
-
-
-
+remplire le tag_order dans main.py pour obtenir les ratios dans l'ordre voulu.

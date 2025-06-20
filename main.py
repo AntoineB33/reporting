@@ -9,6 +9,7 @@ tag_order = [
     "SFR",
     "Orange"
 ]
+tag_order_lower = [t.lower() for t in tag_order]
 
 # Step 1: Get text from clipboard
 text = pyperclip.paste()
@@ -27,18 +28,18 @@ while i < len(lines) - 1:
     else:
         i += 1
 
-# Step 3: Filter out 'Par défaut'
-filtered_pairs = [(label, time) for label, time in pairs if label in tag_order]
+# Step 3: Filter only labels that exist in tag_order (case-insensitive)
+filtered_pairs = [(label, time) for label, time in pairs if label.lower() in tag_order_lower]
 total_time = sum(time for _, time in filtered_pairs)
 
-# Step 4: Get scaled values
+# Step 4: Scale time values to sum = 5.0
 scaled_values = [(time / total_time) * 5 if total_time != 0 else 0 for _, time in filtered_pairs]
 labels = [label for label, _ in filtered_pairs]
 
-# Step 5: Define allowed values (0 to 5 in 0.25 steps)
+# Step 5: Define allowed rounded values (0–5 by 0.25)
 allowed_values = [round(x * 0.25, 2) for x in range(0, 21)]
 
-# Step 6: Find best rounded combination with sum == 5.0
+# Step 6: Find best rounded combination with exact sum = 5.0
 best_total_error = float('inf')
 best_combination = None
 target_sum = 5.00
@@ -51,20 +52,21 @@ for candidate in product(allowed_values, repeat=len(scaled_values)):
             best_total_error = total_error
             best_combination = candidate
 
-# Step 7: Pair and sort by tag_order
+# Step 7: Pair and sort by tag_order (case-insensitive match)
 result_with_labels = list(zip(labels, best_combination))
-sorted_result = sorted(result_with_labels, key=lambda x: tag_order.index(x[0]) if x[0] in tag_order else float('inf'))
+sorted_result = sorted(
+    result_with_labels,
+    key=lambda x: tag_order_lower.index(x[0].lower())
+)
 
-# Step 8: Format output: comma instead of dot, replace 0 with empty string
-output_lines = []
-for _, val in sorted_result:
-    if val == 0:
-        output_lines.append("")
-    else:
-        output_lines.append(f"{val:.2f}".replace(".", ","))
+# Step 8: Format result (comma as decimal separator, empty for 0)
+output_lines = [
+    "" if val == 0 else f"{val:.2f}".replace(".", ",")
+    for _, val in sorted_result
+]
 
 output_text = "\n".join(output_lines)
 
-# Step 9: Copy to clipboard
+# Step 9: Copy result to clipboard
 pyperclip.copy(output_text)
-print("Final formatted result copied to clipboard.")
+print("Final result copied to clipboard (case-insensitive tag ordering).")
