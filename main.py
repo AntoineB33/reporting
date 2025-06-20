@@ -11,6 +11,35 @@ tag_order = [
 ]
 tag_order_lower = [t.lower() for t in tag_order]
 
+def round_to_nearest_0_25(x):
+    return round(x * 4) / 4
+
+def adjust_to_target_sum(values, target_sum=5.0):
+    rounded = [round_to_nearest_0_25(v) for v in values]
+    delta = round(target_sum - sum(rounded), 6)
+    steps = int(abs(delta) / 0.25)
+
+    if steps == 0:
+        return rounded
+
+    direction = 1 if delta > 0 else -1
+
+    # Compute deviation for sorting (lowest impact first)
+    diffs = [
+        (i, abs(rounded[i] + direction * 0.25 - values[i]))
+        for i in range(len(values))
+        if 0 <= rounded[i] + direction * 0.25 <= 5
+    ]
+    diffs.sort(key=lambda x: x[1])  # sort by minimal distortion
+
+    # Apply the best N smallest adjustments
+    for i in range(steps):
+        if i < len(diffs):
+            idx = diffs[i][0]
+            rounded[idx] += direction * 0.25
+
+    return rounded
+
 # Step 1: Get text from clipboard
 text = pyperclip.paste()
 
@@ -28,45 +57,25 @@ while i < len(lines) - 1:
     else:
         i += 1
 
-# Step 3: Filter only labels that exist in tag_order (case-insensitive)
+# Step 3: Filter using tag_order
 filtered_pairs = [(label, time) for label, time in pairs if label.lower() in tag_order_lower]
 total_time = sum(time for _, time in filtered_pairs)
 
-# Step 4: Scale time values to sum = 5.0
+# Step 4: Compute scaled values
 scaled_values = [(time / total_time) * 5 if total_time != 0 else 0 for _, time in filtered_pairs]
 labels = [label for label, _ in filtered_pairs]
 
-# Step 5: Define allowed rounded values (0–5 by 0.25)
-allowed_values = [round(x * 0.25, 2) for x in range(0, 21)]
+# Step 5: Adjust values with heuristic
+rounded_values = adjust_to_target_sum(scaled_values)
 
-# Step 6: Find best rounded combination with exact sum = 5.0
-best_total_error = float('inf')
-best_combination = None
-target_sum = 5.00
-epsilon = 1e-6
+# Step 6: Pair and sort by tag_order
+result_with_labels = list(zip(labels, rounded_values))
+sorted_result = sorted(result_with_labels, key=lambda x: tag_order_lower.index(x[0].lower()))
 
-for candidate in product(allowed_values, repeat=len(scaled_values)):
-    if abs(sum(candidate) - target_sum) < epsilon:
-        total_error = sum(abs(a - b) for a, b in zip(scaled_values, candidate))
-        if total_error < best_total_error:
-            best_total_error = total_error
-            best_combination = candidate
-
-# Step 7: Pair and sort by tag_order (case-insensitive match)
-result_with_labels = list(zip(labels, best_combination))
-sorted_result = sorted(
-    result_with_labels,
-    key=lambda x: tag_order_lower.index(x[0].lower())
-)
-
-# Step 8: Format result (comma as decimal separator, empty for 0)
-output_lines = [
-    "" if val == 0 else f"{val:.2f}".replace(".", ",")
-    for _, val in sorted_result
-]
-
+# Step 7: Format output
+output_lines = ["" if val == 0 else f"{val:.2f}".replace(".", ",") for _, val in sorted_result]
 output_text = "\n".join(output_lines)
 
-# Step 9: Copy result to clipboard
+# Step 8: Copy to clipboard
 pyperclip.copy(output_text)
-print("Final result copied to clipboard (case-insensitive tag ordering).")
+print("Rounded and adjusted result copied to clipboard.")
