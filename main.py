@@ -3,7 +3,6 @@ import pyperclip
 from itertools import product
 
 # === USER-DEFINED TAG ORDER ===
-# Tags should match the labels exactly (case-sensitive)
 tag_order = [
     "FREE",
     "Smart TV",
@@ -11,11 +10,6 @@ tag_order = [
     "Orange",
     "rapport"
 ]
-"""France.TV_Free_Mai/Juin_2025
-France.TV_SmartTV_Mai/Juin_2025
-France.TV_SFR_Mai/Juin_2025
-France.TV_Orange_Mai/Juin_2025
-rapport"""
 
 # Step 1: Get text from clipboard
 text = pyperclip.paste()
@@ -42,10 +36,10 @@ total_time = sum(time for _, time in filtered_pairs)
 scaled_values = [(time / total_time) * 5 if total_time != 0 else 0 for _, time in filtered_pairs]
 labels = [label for label, _ in filtered_pairs]
 
-# Step 5: Define allowed quantized values
+# Step 5: Define allowed rounded values
 allowed_values = [round(x * 0.25, 2) for x in range(0, 21)]
 
-# Step 6: Brute-force search for best match
+# Step 6: Brute-force best match
 best_total_error = float('inf')
 best_combination = None
 
@@ -55,12 +49,13 @@ for candidate in product(allowed_values, repeat=len(scaled_values)):
         best_total_error = total_error
         best_combination = candidate
 
-# Step 7: Pair results with labels and sort by tag_order
+# Step 7: Pair and sort by tag_order
 result_with_labels = list(zip(labels, best_combination))
 sorted_result = sorted(result_with_labels, key=lambda x: tag_order.index(x[0]) if x[0] in tag_order else float('inf'))
 
-# Step 8: Prepare output (just the values)
-output_text = "\n".join(f"{val:.2f}" for _, val in sorted_result)
-pyperclip.copy(output_text)
+# Step 8: Format values with comma as decimal separator
+output_text = "\n".join(f"{val:.2f}".replace(".", ",") for _, val in sorted_result)
 
-print("Sorted and rounded values have been copied to the clipboard.")
+# Step 9: Copy to clipboard
+pyperclip.copy(output_text)
+print("Final result copied to clipboard with comma decimal format.")
