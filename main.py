@@ -7,8 +7,7 @@ tag_order = [
     "FREE",
     "Smart TV",
     "SFR",
-    "Orange",
-    "rapport"
+    "Orange"
 ]
 
 # Step 1: Get text from clipboard
