@@ -29,7 +29,7 @@ while i < len(lines) - 1:
         i += 1
 
 # Step 3: Filter out 'Par défaut'
-filtered_pairs = [(label, time) for label, time in pairs if label.lower() != "par défaut"]
+filtered_pairs = [(label, time) for label, time in pairs if label in tag_order]
 total_time = sum(time for _, time in filtered_pairs)
 
 # Step 4: Get scaled values
