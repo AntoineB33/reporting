@@ -39,11 +39,11 @@ labels = [label for label, _ in filtered_pairs]
 # Step 5: Define allowed values (0 to 5 in 0.25 steps)
 allowed_values = [round(x * 0.25, 2) for x in range(0, 21)]
 
-# Step 6: Find combinations that sum to 5.00 and minimize total distance
+# Step 6: Find best rounded combination with sum == 5.0
 best_total_error = float('inf')
 best_combination = None
 target_sum = 5.00
-epsilon = 1e-6  # for floating point comparison
+epsilon = 1e-6
 
 for candidate in product(allowed_values, repeat=len(scaled_values)):
     if abs(sum(candidate) - target_sum) < epsilon:
@@ -56,9 +56,16 @@ for candidate in product(allowed_values, repeat=len(scaled_values)):
 result_with_labels = list(zip(labels, best_combination))
 sorted_result = sorted(result_with_labels, key=lambda x: tag_order.index(x[0]) if x[0] in tag_order else float('inf'))
 
-# Step 8: Format values with comma
-output_text = "\n".join(f"{val:.2f}".replace(".", ",") for _, val in sorted_result)
+# Step 8: Format output: comma instead of dot, replace 0 with empty string
+output_lines = []
+for _, val in sorted_result:
+    if val == 0:
+        output_lines.append("")
+    else:
+        output_lines.append(f"{val:.2f}".replace(".", ","))
+
+output_text = "\n".join(output_lines)
 
 # Step 9: Copy to clipboard
 pyperclip.copy(output_text)
-print("Final result copied to clipboard with sum = 5.0 and comma decimal format.")
+print("Final formatted result copied to clipboard.")
