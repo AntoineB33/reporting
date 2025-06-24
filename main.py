@@ -4,12 +4,15 @@ from itertools import product
 
 # === USER-DEFINED TAG ORDER ===
 tag_order = [
-    "FREE",
-    "Smart TV",
-    "SFR",
-    "Orange"
+    "__DS_Congés2025",
+    "__DS_Feriés2025",
+    "_DS_Orga",
+    "France.TV_Free_Mai/Juin_2025",
+    "France.TV_SmartTV_Mai/Juin_2025",
+    "France.TV_SFR_Mai/Juin_2025",
+    "France.TV_Orange_Mai/Juin_2025"
 ]
-tag_order_lower = [t.lower() for t in tag_order]
+tag_order = [t.lower() for t in tag_order]
 
 def round_to_nearest_0_25(x):
     return round(x * 4) / 4
@@ -48,7 +51,7 @@ lines = text.strip().splitlines()
 pairs = []
 i = 0
 while i < len(lines) - 1:
-    label = lines[i].strip()
+    label = lines[i].strip().lower()
     time_line = lines[i + 1].strip()
     if re.match(r"^\d+(\.\d+)?\s*h$", time_line):
         time = float(time_line.replace("h", "").strip())
@@ -58,7 +61,7 @@ while i < len(lines) - 1:
         i += 1
 
 # Step 3: Filter using tag_order
-filtered_pairs = [(label, time) for label, time in pairs if label.lower() in tag_order_lower]
+filtered_pairs = [(label, time) for label, time in pairs if label in tag_order]
 total_time = sum(time for _, time in filtered_pairs)
 
 # Step 4: Compute scaled values
@@ -70,7 +73,12 @@ rounded_values = adjust_to_target_sum(scaled_values)
 
 # Step 6: Pair and sort by tag_order
 result_with_labels = list(zip(labels, rounded_values))
-sorted_result = sorted(result_with_labels, key=lambda x: tag_order_lower.index(x[0].lower()))
+# Build a dict for quick lookup
+label_to_value = {label: value for label, value in result_with_labels}
+sorted_result = [
+    (tag, label_to_value.get(tag, 0))
+    for tag in tag_order
+]
 
 # Step 7: Format output
 output_lines = ["" if val == 0 else f"{val:.2f}".replace(".", ",") for _, val in sorted_result]
