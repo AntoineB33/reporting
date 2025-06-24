@@ -3,16 +3,11 @@ import pyperclip
 from itertools import product
 
 # === USER-DEFINED TAG ORDER ===
-tag_order = [
-    "__DS_Congés2025",
-    "__DS_Feriés2025",
-    "_DS_Orga",
-    "France.TV_Free_Mai/Juin_2025",
-    "France.TV_SmartTV_Mai/Juin_2025",
-    "France.TV_SFR_Mai/Juin_2025",
-    "France.TV_Orange_Mai/Juin_2025"
-]
-tag_order = [t.lower() for t in tag_order]
+def read_tag_order(filepath="tag_order.txt"):
+    with open(filepath, encoding="utf-8") as f:
+        return [line.rstrip("\n").lower() for line in f]
+
+tag_order = read_tag_order()
 
 def round_to_nearest_0_25(x):
     return round(x * 4) / 4
