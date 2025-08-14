@@ -1,6 +1,4 @@
-Il suffit de copier la répartition du temps sur Google Calendar, lancer main.py, et ctrl+v dans le reporting.
-
-
+Il suffit de copier la répartition du temps sur Google Calendar, lancer main.py, et ctrl+v dans le reporting. Il faut mettre le nombre de jours fériés dans la semaine dans la variable `holidays` de main.py.
 
 
 initialisation :
@@ -8,7 +6,7 @@ initialisation :
 installer les librairies :
 python -m pip install -r requirements.txt
 
-remplire le tag_order.txt pour obtenir les ratios dans l'ordre voulu.
+remplire le tag_order.txt pour obtenir les ratios dans l'ordre voulu. Les tags sont insensibles à la casse.
 example :
 
 .\tag_order.txt
