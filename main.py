@@ -2,7 +2,8 @@ import re
 import pyperclip
 from itertools import product
 
-holidays = 1
+with open("holidays_in_the_week.txt", encoding="utf-8") as f:
+    holidays = int(f.read().strip())
 
 # === USER-DEFINED TAG ORDER ===
 def read_tag_order(filepath="tag_order.txt"):
